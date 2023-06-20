@@ -8,9 +8,9 @@ public class Main {
     public static void main(String[] args) {
         BeanFactory beanFactory = new BeanFactory();
         beanFactory.instantiate("com.bolotov.car");
+        beanFactory.populateProperties();
         CarService carService = (CarService) beanFactory.getBean("carService");
-        PromotionService promotionService = (PromotionService) beanFactory.getBean("promotionService");
-        System.out.println(carService);
-        System.out.println(promotionService);
+        System.out.println(carService.promotionService);
+
     }
 }

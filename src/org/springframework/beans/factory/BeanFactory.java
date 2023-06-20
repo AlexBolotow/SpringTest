@@ -1,10 +1,14 @@
 package org.springframework.beans.factory;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.stereotype.Component;
 import org.springframework.beans.factory.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Enumeration;
@@ -49,9 +53,35 @@ public class BeanFactory {
         } catch (IOException | URISyntaxException | ClassNotFoundException | InstantiationException | IllegalAccessException e) {
             e.printStackTrace();
         }
-
-
     }
+
+    public void populateProperties() {
+        System.out.println("==populateProperties==");
+
+        //проходимся по всем полям бинов
+        for (Object object : singletons.values()) {
+            for (Field field : object.getClass().getDeclaredFields()) {
+                if (field.isAnnotationPresent(Autowired.class)) {
+                    //находим типы котоые хотят взять bean
+                    for (Object dependency : singletons.values()) {
+                        if (dependency.getClass().equals(field.getType())) {
+                            //формируем сеттер (CarService -> promotionService)
+                            String setterName = "set" + field.getName().substring(0, 1).toUpperCase() + field.getName().substring(1);
+                            System.out.println("Setter name = " + setterName);
+                            try {
+                                Method setter = object.getClass().getMethod(setterName, dependency.getClass());
+                                setter.invoke(object, dependency);
+                            } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+                                e.printStackTrace();
+                            }
+
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     public Object getBean(String beanName) {
         return singletons.get(beanName);
     }
