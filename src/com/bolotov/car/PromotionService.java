@@ -1,16 +1,18 @@
 package com.bolotov.car;
 
+import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.beans.factory.stereotype.Service;
 
 @Service
-public class PromotionService {
-    private PromotionService promotionService;
+public class PromotionService implements BeanNameAware {
+    private String beanName;
 
-    public PromotionService getPromotionService() {
-        return promotionService;
+    @Override
+    public void setBeanName(String name) {
+        beanName = name;
     }
 
-    public void setPromotionService(PromotionService promotionService) {
-        this.promotionService = promotionService;
+    public String getBeanName() {
+        return beanName;
     }
 }
