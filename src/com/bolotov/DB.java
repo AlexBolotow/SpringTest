@@ -16,6 +16,10 @@ public class DB {
         products.remove(product);
     }
 
+    public boolean isProductInStock(Product product) {
+        return products.contains(product);
+    }
+
     public List<Product> getProducts() {
         return products;
     }

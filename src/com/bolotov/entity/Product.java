@@ -1,5 +1,7 @@
 package com.bolotov.entity;
 
+import com.bolotov.DB;
+
 public abstract class Product {
     double price;
     String model;
@@ -39,5 +41,14 @@ public abstract class Product {
 
     public void setColor(String color) {
         this.color = color;
+    }
+
+    @Override
+    public String toString() {
+        return "Product{" +
+                "price=" + price +
+                ", model='" + model + '\'' +
+                ", color='" + color + '\'' +
+                '}';
     }
 }

@@ -17,7 +17,7 @@ public class PromotionService implements BeanNameAware {
         return beanName;
     }
 
-    /*public double countSale(Promotion promotion) {
-        return promotion.getPercent() > 0 ? :
-    }*/
+    public double countSale(Promotion promotion, double price) {
+        return promotion.getPercent() > 0 ? price * promotion.getPercent() / 100. : 0;
+    }
 }

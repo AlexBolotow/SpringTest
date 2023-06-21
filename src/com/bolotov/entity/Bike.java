@@ -2,9 +2,12 @@ package com.bolotov.entity;
 
 import org.springframework.beans.factory.stereotype.Component;
 
+import java.util.List;
+
 @Component
 public class Bike extends Product {
     int countSpeeds;
+    List<KitItem> kit;
 
     public Bike(double price, String model, String color, int countSpeeds) {
         super(price, model, color);
@@ -16,10 +19,20 @@ public class Bike extends Product {
     @Override
     public String toString() {
         return "Bike{" +
-                "color='" + color + '\'' +
+                "countSpeeds=" + countSpeeds +
+                ", kit=" + kit +
+                ", price=" + price +
                 ", model='" + model + '\'' +
-                ", countSpeeds=" + countSpeeds +
+                ", color='" + color + '\'' +
                 '}';
+    }
+
+    public List<KitItem> getKit() {
+        return kit;
+    }
+
+    public void setKit(List<KitItem> kit) {
+        this.kit = kit;
     }
 
     public int getCountSpeeds() {

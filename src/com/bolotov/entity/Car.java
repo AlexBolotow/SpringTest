@@ -18,7 +18,7 @@ public class Car extends Product {
 
     @Override
     public String toString() {
-        return "Car{" +
+        return super.toString() + "Car{" +
                 "color='" + color + '\'' +
                 ", model='" + model + '\'' +
                 ", doorCount=" + doorCount +
