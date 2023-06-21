@@ -15,7 +15,7 @@ public class Main {
         BeanFactory beanFactory = new BeanFactory();
         beanFactory.instantiate("com.bolotov.service");
 
-        beanFactory.populateProperties();
+/*        beanFactory.populateProperties();
         beanFactory.injectBeanNames();
         beanFactory.injectBeanFactory();
         beanFactory.addPostProcessor(new CustomPostProcessor());
@@ -41,6 +41,10 @@ public class Main {
 
         carService.sale(car1, new Promotion(10), db);
         bikeService.sale(bike1, db);
-        db.getProducts().forEach(System.out::println);
+        db.getProducts().forEach(System.out::println);*/
+
+        System.out.println(beanFactory.getBean(CarService.class));
+
+
     }
 }

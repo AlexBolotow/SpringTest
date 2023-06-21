@@ -86,6 +86,15 @@ public class BeanFactory {
         return singletons.get(beanName);
     }
 
+    public <T> T getBean(Class<T> beanType) {
+        for (Object item : singletons.values()) {
+            if (beanType.isInstance(item)) {
+                return (T) item;
+            }
+        }
+        return null;
+    }
+
     public void injectBeanNames() {
         for (String name : singletons.keySet()) {
             Object bean = singletons.get(name);
@@ -118,7 +127,6 @@ public class BeanFactory {
             }
         }
     }
-
 
     public void addPostProcessor(BeanPostProcessor postProcessor){
         postProcessors.add(postProcessor);
