@@ -1,4 +1,4 @@
-package com.bolotov.car;
+package com.bolotov.service;
 
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
@@ -28,4 +28,6 @@ public class CarService implements BeanFactoryAware {
     public BeanFactory getBeanFactory() {
         return beanFactory;
     }
+
+    //public getPrice();
 }

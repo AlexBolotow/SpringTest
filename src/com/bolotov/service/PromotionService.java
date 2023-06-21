@@ -1,5 +1,6 @@
-package com.bolotov.car;
+package com.bolotov.service;
 
+import com.bolotov.entity.Promotion;
 import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.beans.factory.stereotype.Service;
 
@@ -15,4 +16,8 @@ public class PromotionService implements BeanNameAware {
     public String getBeanName() {
         return beanName;
     }
+
+    /*public double countSale(Promotion promotion) {
+        return promotion.getPercent() > 0 ? :
+    }*/
 }
