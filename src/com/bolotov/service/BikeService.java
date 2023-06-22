@@ -2,8 +2,6 @@ package com.bolotov.service;
 
 import com.bolotov.DB;
 import com.bolotov.entity.Bike;
-import com.bolotov.entity.Car;
-import com.bolotov.entity.Promotion;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,14 +12,14 @@ public class BikeService implements BeanFactoryAware {
     private BeanFactory beanFactory;
 
     @Autowired
-    public KitItemService kitItemService;
+    public KitItemServiceImpl kitItemServiceImpl;
 
-    public KitItemService getKitItemService() {
-        return kitItemService;
+    public KitItemServiceImpl getKitItemService() {
+        return kitItemServiceImpl;
     }
 
-    public void setKitItemService(KitItemService kitItemService) {
-        this.kitItemService = kitItemService;
+    public void setKitItemService(KitItemServiceImpl kitItemServiceImpl) {
+        this.kitItemServiceImpl = kitItemServiceImpl;
     }
 
     @Override
@@ -35,7 +33,7 @@ public class BikeService implements BeanFactoryAware {
 
     public void setKit(Bike bike) {
         if (bike.getModel().equals("Merida")) {
-            bike.setKit(kitItemService.setExtendedKit());
+            bike.setKit(kitItemServiceImpl.setExtendedKit());
         }
     }
 

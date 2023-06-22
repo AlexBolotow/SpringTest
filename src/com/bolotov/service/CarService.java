@@ -2,7 +2,6 @@ package com.bolotov.service;
 
 import com.bolotov.DB;
 import com.bolotov.entity.Car;
-import com.bolotov.entity.Product;
 import com.bolotov.entity.Promotion;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
@@ -14,15 +13,38 @@ public class CarService implements BeanFactoryAware {
     private BeanFactory beanFactory;
 
     @Autowired
-    public PromotionService promotionService;
+    private PromotionService promotionService;
+    private PromotionService promotionService2;
+    private PromotionService promotionService3;
+
+    public CarService(){}
 
     public PromotionService getPromotionService() {
+        System.out.print("Get promotionService: ");
         return promotionService;
     }
 
-    public void setPromotionService(PromotionService promotionService) {
-        this.promotionService = promotionService;
+    @Autowired
+    public void setPromotionService2(PromotionService promotionService2) {
+        this.promotionService2 = promotionService2;
     }
+
+    public PromotionService getPromotionService2() {
+        System.out.print("Get promotionService2: ");
+        return promotionService2;
+    }
+
+    @Autowired
+    public CarService(PromotionService promotionService3) {
+        this.promotionService3 = promotionService3;
+    }
+
+
+    public PromotionService getPromotionService3() {
+        System.out.print("Get promotionService3: ");
+        return promotionService3;
+    }
+
 
     @Override
     public void setBeanFactory(BeanFactory beanFactory) {
