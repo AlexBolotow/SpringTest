@@ -3,7 +3,6 @@ package org.springframework.beans.factory;
 import com.bolotov.aspects.LoggingAspect;
 import com.bolotov.service.PromotionServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Loggable;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.beans.factory.stereotype.Component;
 import org.springframework.beans.factory.stereotype.Service;
@@ -18,6 +17,7 @@ import java.util.*;
 
 public class BeanFactory {
     private Map<String, Object> singletons = new HashMap<>();
+    private Map<String, Object> proxies = new HashMap<>();
     private List<BeanPostProcessor> postProcessors = new ArrayList<>();
 
     public Map<String, Object> getSingletons() {
@@ -43,20 +43,7 @@ public class BeanFactory {
                         String className = fileName.substring(0, fileName.lastIndexOf("."));
                         Class classObject = Class.forName(basePackage + "." + className);
                         if (classObject.isAnnotationPresent(Component.class) || classObject.isAnnotationPresent(Service.class)) {
-                            Object instance;
-                            //создаем proxy object
-                            if (classObject.isAnnotationPresent(Loggable.class)) {
-                                Object bean = classObject.newInstance();
-
-                                instance = Proxy.newProxyInstance(bean.getClass().getClassLoader(),
-                                        bean.getClass().getInterfaces(), new ProxyBean(bean));
-                            }
-                            else {
-                                //System.out.println(Arrays.toString(classObject.getDeclaredAnnotations()) + " : " + classObject);
-                                //создаем новый bean
-                                instance = classObject.newInstance();
-                            }
-
+                            Object instance = classObject.newInstance();
                             String beanName = className.substring(0, 1).toLowerCase() + className.substring(1);
                             singletons.put(beanName, instance);
                         }
@@ -68,14 +55,13 @@ public class BeanFactory {
         }
     }
 
+
+    public Object getProxy(String beanName) {
+        return proxies.get(beanName);
+    }
+
     public Object getBean(String beanName) {
-//        if (singletons.get(beanName) instanceof ProxyBean) {
-//            return ((ProxyBean)singletons.get(beanName)).bean;
-//        }
-
-        System.out.println(singletons.get(beanName));
         return singletons.get(beanName);
-
     }
 
     public <T> T getBean(Class<T> beanType) {
@@ -179,6 +165,14 @@ public class BeanFactory {
         }
     }
 
+    public void initializeProxies() {
+        for (Map.Entry<String, Object> singleton : singletons.entrySet()) {
+            Object proxy = Proxy.newProxyInstance(singleton.getValue().getClass().getClassLoader(),
+                    singleton.getValue().getClass().getInterfaces(), new ProxyBean(singleton.getValue()));
+
+            proxies.put(singleton.getKey(),proxy);
+        }
+    }
     public void addPostProcessor(BeanPostProcessor postProcessor) {
         postProcessors.add(postProcessor);
     }

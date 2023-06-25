@@ -6,10 +6,8 @@ import com.bolotov.entity.Promotion;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Loggable;
 import org.springframework.beans.factory.stereotype.Service;
 
-@Loggable
 @Service
 public class CarServiceImpl implements CarService, BeanFactoryAware{
     private BeanFactory beanFactory;
@@ -62,6 +60,13 @@ public class CarServiceImpl implements CarService, BeanFactoryAware{
     }
 
     public void sale(Car car, Promotion promotion, DB db) {
+        //для краствого output
+        try {
+            Thread.sleep((long)(Math.random()* 10000));
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
         if (db.isProductInStock(car)) {
             car.setPrice(getPrice(car, promotion));
             //getPrice(car, promotion);

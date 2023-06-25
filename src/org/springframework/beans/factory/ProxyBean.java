@@ -23,7 +23,7 @@ public class ProxyBean implements InvocationHandler {
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        //Object result = proxy;
+        Object result = null;
 
         for (Method advice : aspect.getClass().getDeclaredMethods()) {
             //есть ли у advice аннотация и pointcut соответсвующий имени вызываемого метода
@@ -36,9 +36,11 @@ public class ProxyBean implements InvocationHandler {
                     && advice.getAnnotation(Around.class).value().equals(method.getName())) {
                 advice.invoke(aspect);
             }
+        }
 
-            method.invoke(bean, args);
+        result = method.invoke(bean, args);
 
+        for (Method advice : aspect.getClass().getDeclaredMethods()) {
             if (advice.isAnnotationPresent(Around.class)
                     && advice.getAnnotation(Around.class).value().equals(method.getName())) {
                 advice.invoke(aspect);
@@ -50,6 +52,6 @@ public class ProxyBean implements InvocationHandler {
             }
         }
 
-        return proxy;
+        return result;
     }
 }
