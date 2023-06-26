@@ -1,9 +1,6 @@
 package org.springframework.beans.factory;
 
 import org.springframework.beans.factory.annotation.Aspect;
-import org.springframework.beans.factory.config.BeanPostProcessor;
-import org.springframework.beans.factory.stereotype.Component;
-import org.springframework.beans.factory.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
@@ -13,7 +10,8 @@ import java.net.URL;
 import java.util.*;
 
 public class ProxyBeanFactory {
-    private Map<String, Object> proxies = new HashMap<>();
+    private Map<String, Object> proxiesByName = new HashMap<>();
+    private Map<Class<?>, Object> proxiesByType = new HashMap<>();
     private List<Object> aspects = new ArrayList<>();
 
     public void initialize(String basePackage, Map<String, Object> singletons) {
@@ -57,17 +55,29 @@ public class ProxyBeanFactory {
             Object proxy = Proxy.newProxyInstance(singleton.getValue().getClass().getClassLoader(),
                     singleton.getValue().getClass().getInterfaces(), new ProxyBean(singleton.getValue(), this));
 
-            proxies.put(singleton.getKey(),proxy);
+            proxiesByName.put(singleton.getKey(), proxy);
+            proxiesByType.put(singleton.getValue().getClass(), proxy);
         }
+
     }
 
     public Object getProxy(String proxyName) {
-        return proxies.get(proxyName);
+        return proxiesByName.get(proxyName);
+    }
+
+    public Object getProxy(Class<?> proxyType) {
+        for (Map.Entry<Class<?>, Object> proxy : proxiesByType.entrySet()) {
+            {
+                if (proxyType.isInstance(proxy.getValue()) || proxyType.equals(proxy.getValue())) {
+                    return proxy.getValue();
+                }
+            }
+        }
+
+        return null;
     }
 
     public List<Object> getAspects() {
         return aspects;
     }
-
-    //public <T> T getProxy(Class<T> beanType)
 }

@@ -12,14 +12,14 @@ public class BikeServiceImpl implements BikeService, BeanFactoryAware {
     private BeanFactory beanFactory;
 
     @Autowired
-    public KitItemServiceImpl kitItemServiceImpl;
+    public KitItemService kitItemService;
 
     public KitItemServiceImpl getKitItemService() {
-        return kitItemServiceImpl;
+        return (KitItemServiceImpl) kitItemService;
     }
 
     public void setKitItemService(KitItemServiceImpl kitItemServiceImpl) {
-        this.kitItemServiceImpl = kitItemServiceImpl;
+        this.kitItemService = kitItemServiceImpl;
     }
 
     @Override
@@ -33,7 +33,7 @@ public class BikeServiceImpl implements BikeService, BeanFactoryAware {
 
     public void setKit(Bike bike) {
         if (bike.getModel().equals("Merida")) {
-            bike.setKit(kitItemServiceImpl.setExtendedKit());
+            bike.setKit(kitItemService.setExtendedKit());
         }
     }
 

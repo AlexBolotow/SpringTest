@@ -29,7 +29,14 @@ public class Main {
         Object carService1 = beanFactory.getBean(CarService.class);
         Object carService2 = beanFactory.getBean(CarServiceImpl.class);
 
+
+        int x = 798;
+
+
+
         ((CarService) carService1).sale(car1, new Promotion(10), db);
         ((CarServiceImpl) carService2).sale(car2, new Promotion(50), db);
+
+
     }
 }

@@ -1,5 +1,6 @@
 package org.springframework.beans.factory;
 
+import com.bolotov.service.KitItemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.beans.factory.stereotype.Component;
@@ -52,36 +53,25 @@ public class BeanFactory {
         }
     }
 
-
-    private Object getProxy(String beanName) {
-        return proxyBeanFactory.getProxy(beanName);
-    }
-
-    private String getBeanName(Class<?> beanType) {
-        for (Map.Entry<String, Object> entry : singletons.entrySet()) {
-            if (beanType.isInstance(entry.getValue())) {
-                return entry.getKey();
-            }
-        }
-        return null;
-    }
-
-    private <T> T getBeanSingleton(Class<T> beanType) {
+/*    private <T> T getBeanSingleton(Class<T> beanType) {
         for (Object item : singletons.values()) {
             if (beanType.isInstance(item)) {
                 return (T) item;
             }
         }
         return null;
+    }*/
+
+    public Object getBean(String beanName) {
+        return proxyBeanFactory.getProxy(beanName);
     }
-    //public Object getBean(String beanName)
 
     public Object getBean(Class<?> beanType) {
         for (Object item : singletons.values()) {
             if (beanType.isInstance(item)) {
                 //возвращаем proxy
                 if (beanType.isInterface()) {
-                    return proxyBeanFactory.getProxy(getBeanName(beanType));
+                    return proxyBeanFactory.getProxy(beanType);
                 }
                 //возвращаем bean
                 else {
@@ -95,11 +85,12 @@ public class BeanFactory {
     public void injectDependenciesFields(Object object) throws IllegalAccessException {
         for (Field field : object.getClass().getDeclaredFields()) {
             if (field.isAnnotationPresent(Autowired.class)) {
-                //находим тип который хочет взять bean
                 for (Object dependency : singletons.values()) {
                     if (field.getType().isAssignableFrom(dependency.getClass())) {
                         field.setAccessible(true);
-                        field.set(object, dependency);
+                       /* System.out.println(dependency.getClass());
+                        System.out.println(proxyBeanFactory.getProxy(dependency.getClass()));*/
+                        field.set(object, proxyBeanFactory.getProxy(dependency.getClass()));
                         field.setAccessible(false);
                     }
                 }
@@ -125,11 +116,11 @@ public class BeanFactory {
                 List<Object> constructorDependencies = new ArrayList<>();
                 for (Parameter parameter : parameters) {
                     try {
-                        if (getBeanSingleton(parameter.getType()) == null) {
+                        if (getBean(parameter.getType()) == null) {
                             throw new RuntimeException("Autowired constructor error");
                         }
 
-                        constructorDependencies.add(getBeanSingleton(parameter.getType()));
+                        constructorDependencies.add(proxyBeanFactory.getProxy(parameter.getType()));
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -161,16 +152,16 @@ public class BeanFactory {
     }
 
     public void initializeBeans() throws IllegalAccessException, InvocationTargetException, InstantiationException {
-        for (String name : singletons.keySet()) {
-            Object bean = singletons.get(name);
+        proxyBeanFactory.initialize("com.bolotov.aspects", singletons);
 
+        for (String name : singletons.keySet()) {
+            Object bean = getBean(name);
             for (BeanPostProcessor postProcessor : postProcessors) {
                 postProcessor.postProcessBeforeInitialization(bean, name);
             }
 
             Object temp = injectDependenciesWithConstructor(bean);
             if (temp != null) {
-
                 bean = temp;
                 singletons.put(name, bean);
             }
@@ -184,8 +175,6 @@ public class BeanFactory {
                 postProcessor.postProcessAfterInitialization(bean, name);
             }
         }
-
-        proxyBeanFactory.initialize("com.bolotov.aspects", singletons);
     }
 
     public void addPostProcessor(BeanPostProcessor postProcessor) {
