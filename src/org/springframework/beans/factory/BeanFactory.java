@@ -1,13 +1,10 @@
 package org.springframework.beans.factory;
 
-import com.bolotov.aspects.LoggingAspect;
-import com.bolotov.service.PromotionServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.beans.factory.stereotype.Component;
 import org.springframework.beans.factory.stereotype.Service;
 
-import java.io.Console;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.*;
@@ -17,8 +14,8 @@ import java.util.*;
 
 public class BeanFactory {
     private Map<String, Object> singletons = new HashMap<>();
-    private Map<String, Object> proxies = new HashMap<>();
     private List<BeanPostProcessor> postProcessors = new ArrayList<>();
+    private ProxyBeanFactory proxyBeanFactory = new ProxyBeanFactory();
 
     public Map<String, Object> getSingletons() {
         return singletons;
@@ -56,18 +53,40 @@ public class BeanFactory {
     }
 
 
-    public Object getProxy(String beanName) {
-        return proxies.get(beanName);
+    private Object getProxy(String beanName) {
+        return proxyBeanFactory.getProxy(beanName);
     }
 
-    public Object getBean(String beanName) {
-        return singletons.get(beanName);
+    private String getBeanName(Class<?> beanType) {
+        for (Map.Entry<String, Object> entry : singletons.entrySet()) {
+            if (beanType.isInstance(entry.getValue())) {
+                return entry.getKey();
+            }
+        }
+        return null;
     }
 
-    public <T> T getBean(Class<T> beanType) {
+    private <T> T getBeanSingleton(Class<T> beanType) {
         for (Object item : singletons.values()) {
             if (beanType.isInstance(item)) {
                 return (T) item;
+            }
+        }
+        return null;
+    }
+    //public Object getBean(String beanName)
+
+    public Object getBean(Class<?> beanType) {
+        for (Object item : singletons.values()) {
+            if (beanType.isInstance(item)) {
+                //возвращаем proxy
+                if (beanType.isInterface()) {
+                    return proxyBeanFactory.getProxy(getBeanName(beanType));
+                }
+                //возвращаем bean
+                else {
+                    return item;
+                }
             }
         }
         return null;
@@ -106,11 +125,11 @@ public class BeanFactory {
                 List<Object> constructorDependencies = new ArrayList<>();
                 for (Parameter parameter : parameters) {
                     try {
-                        if (getBean(parameter.getType()) == null) {
+                        if (getBeanSingleton(parameter.getType()) == null) {
                             throw new RuntimeException("Autowired constructor error");
                         }
 
-                        constructorDependencies.add(getBean(parameter.getType()));
+                        constructorDependencies.add(getBeanSingleton(parameter.getType()));
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -159,20 +178,16 @@ public class BeanFactory {
             injectDependenciesFields(bean);
             injectDependenciesWithSetters(bean);
 
+
+
             for (BeanPostProcessor postProcessor : postProcessors) {
                 postProcessor.postProcessAfterInitialization(bean, name);
             }
         }
+
+        proxyBeanFactory.initialize("com.bolotov.aspects", singletons);
     }
 
-    public void initializeProxies() {
-        for (Map.Entry<String, Object> singleton : singletons.entrySet()) {
-            Object proxy = Proxy.newProxyInstance(singleton.getValue().getClass().getClassLoader(),
-                    singleton.getValue().getClass().getInterfaces(), new ProxyBean(singleton.getValue()));
-
-            proxies.put(singleton.getKey(),proxy);
-        }
-    }
     public void addPostProcessor(BeanPostProcessor postProcessor) {
         postProcessors.add(postProcessor);
     }

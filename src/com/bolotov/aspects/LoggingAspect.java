@@ -2,16 +2,27 @@ package com.bolotov.aspects;
 
 import org.springframework.beans.factory.annotation.After;
 import org.springframework.beans.factory.annotation.Around;
+import org.springframework.beans.factory.annotation.Aspect;
 import org.springframework.beans.factory.annotation.Before;
 
-public interface LoggingAspect {
+import java.util.logging.Logger;
+
+@Aspect
+public class LoggingAspect {
+    public static final Logger logger = Logger.getLogger(LoggingAspect.class.getName());
 
     @Before("sale")
-    void beforeSellingAdvice();
+    public void beforeSellingAdvice() {
+        logger.info("before selling advice");
+    }
 
     @After("sale")
-    void afterSellingAdvice();
+    public void afterSellingAdvice() {
+        logger.info("after selling advice");
+    }
 
     @Around("sale")
-    void aroundSellingAdvice();
+    public void aroundSellingAdvice() {
+        logger.info("around selling advice");
+    }
 }
