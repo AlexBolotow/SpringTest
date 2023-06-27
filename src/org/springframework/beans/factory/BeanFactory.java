@@ -53,14 +53,18 @@ public class BeanFactory {
         }
     }
 
-/*    private <T> T getBeanSingleton(Class<T> beanType) {
+    private Object getBeanSingleton(Class<?> beanType) {
         for (Object item : singletons.values()) {
             if (beanType.isInstance(item)) {
-                return (T) item;
+                return item;
             }
         }
         return null;
-    }*/
+    }
+
+    private Object getBeanSingleton(String beanName) {
+        return singletons.get(beanName);
+    }
 
     public Object getBean(String beanName) {
         return proxyBeanFactory.getProxy(beanName);
@@ -88,8 +92,6 @@ public class BeanFactory {
                 for (Object dependency : singletons.values()) {
                     if (field.getType().isAssignableFrom(dependency.getClass())) {
                         field.setAccessible(true);
-                       /* System.out.println(dependency.getClass());
-                        System.out.println(proxyBeanFactory.getProxy(dependency.getClass()));*/
                         field.set(object, proxyBeanFactory.getProxy(dependency.getClass()));
                         field.setAccessible(false);
                     }
@@ -116,7 +118,7 @@ public class BeanFactory {
                 List<Object> constructorDependencies = new ArrayList<>();
                 for (Parameter parameter : parameters) {
                     try {
-                        if (getBean(parameter.getType()) == null) {
+                        if (getBeanSingleton(parameter.getType()) == null) {
                             throw new RuntimeException("Autowired constructor error");
                         }
 
@@ -155,7 +157,7 @@ public class BeanFactory {
         proxyBeanFactory.initialize("com.bolotov.aspects", singletons);
 
         for (String name : singletons.keySet()) {
-            Object bean = getBean(name);
+            Object bean = getBeanSingleton(name);
             for (BeanPostProcessor postProcessor : postProcessors) {
                 postProcessor.postProcessBeforeInitialization(bean, name);
             }
@@ -175,6 +177,8 @@ public class BeanFactory {
                 postProcessor.postProcessAfterInitialization(bean, name);
             }
         }
+
+        proxyBeanFactory.instantiateProxies(singletons);
     }
 
     public void addPostProcessor(BeanPostProcessor postProcessor) {

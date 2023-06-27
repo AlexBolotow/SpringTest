@@ -73,7 +73,7 @@ public class CarServiceImpl implements CarService, BeanFactoryAware{
             db.deleteProduct(car);
             System.out.println("sale: " + car);
         } else {
-            System.out.println("no product");
+           // System.out.println("no product");
         }
     }
 }

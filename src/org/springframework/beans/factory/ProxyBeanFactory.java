@@ -50,7 +50,7 @@ public class ProxyBeanFactory {
         }
     }
 
-    private void instantiateProxies(Map<String, Object> singletons) {
+    public void instantiateProxies(Map<String, Object> singletons) {
         for (Map.Entry<String, Object> singleton : singletons.entrySet()) {
             Object proxy = Proxy.newProxyInstance(singleton.getValue().getClass().getClassLoader(),
                     singleton.getValue().getClass().getInterfaces(), new ProxyBean(singleton.getValue(), this));
@@ -68,7 +68,7 @@ public class ProxyBeanFactory {
     public Object getProxy(Class<?> proxyType) {
         for (Map.Entry<Class<?>, Object> proxy : proxiesByType.entrySet()) {
             {
-                if (proxyType.isInstance(proxy.getValue()) || proxyType.equals(proxy.getValue())) {
+                if (proxyType.isAssignableFrom(proxy.getKey())) {
                     return proxy.getValue();
                 }
             }
